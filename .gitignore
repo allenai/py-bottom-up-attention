@@ -23,8 +23,8 @@ dist/
 *.npy
 
 # ipython/jupyter notebooks
-*.ipynb
-**/.ipynb_checkpoints/
+# *.ipynb
+# **/.ipynb_checkpoints/
 
 # Editor temporaries
 *.swn
