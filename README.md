@@ -10,6 +10,13 @@ The features extracted from this repo is compatible with LXMERT code and pre-tra
 
 ## Installation
 ```
+# create conda env
+conda create -n bua python=3.7 -y
+conda activate bua
+
+# install h5py for feature caching
+conda install h5py
+
 git clone https://github.com/airsplay/py-bottom-up-attention.git
 cd py-bottom-up-attention
 
