@@ -99,7 +99,7 @@ def main():
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    feats_h5py = os.path.join(outdir,f'{args.split}.h5py')
+    feats_h5py = os.path.join(outdir,f'{args.split}.hdf5')
     f = h5py.File(feats_h5py,'w')
     paths = glob.glob(f'{imgdir}/*.jpg')
     for i,path in enumerate(tqdm(paths)):
