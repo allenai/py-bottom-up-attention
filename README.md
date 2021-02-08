@@ -17,7 +17,7 @@ conda activate bua
 # install h5py for feature caching
 conda install h5py
 
-git clone https://github.com/airsplay/py-bottom-up-attention.git
+git clone git@github.com:allenai/py-bottom-up-attention.git
 cd py-bottom-up-attention
 
 # Install python libraries
