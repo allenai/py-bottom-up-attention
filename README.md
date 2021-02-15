@@ -24,6 +24,9 @@ cd py-bottom-up-attention
 pip install -r requirements.txt
 pip install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
 
+# To train models install the right version of fvcore
+pip install fvcore==0.1.1.dev200512
+
 # Install detectron2
 python setup.py build develop
 
