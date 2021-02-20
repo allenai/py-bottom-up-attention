@@ -86,12 +86,12 @@ def run_detector(raw_image,predictor,num_objects=100,verbose=True):
 
 def main():
     cfg = get_cfg()
-    cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_50_C4_3x.yaml")
+    cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_50_C4_3x_coco_2014.yaml")
     cfg.MODEL.RPN.POST_NMS_TOPK_TEST = 300
     cfg.MODEL.ROI_HEADS.NMS_THRESH_TEST = 0.6
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.2
     cfg.MODEL.RPN.NMS_THRESH = 0.7
-    cfg.MODEL.WEIGHTS = "https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_C4_3x/137849393/model_final_f97cb7.pkl"
+    cfg.MODEL.WEIGHTS = "/home/tanmayg/Data/detectron2_output/model_final.pth" #"https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_C4_3x/137849393/model_final_f97cb7.pkl"
     predictor = DefaultPredictor(cfg)
 
     imgdir=os.path.join(args.imgdir,args.split) #'/home/tanmayg/Data/gpv/learning_phase_data/coco/images/train2014'
