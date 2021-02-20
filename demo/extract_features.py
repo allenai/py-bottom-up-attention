@@ -91,7 +91,7 @@ def main():
     cfg.MODEL.ROI_HEADS.NMS_THRESH_TEST = 0.6
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.2
     cfg.MODEL.RPN.NMS_THRESH = 0.7
-    cfg.MODEL.WEIGHTS = "/home/tanmayg/Data/detectron2_output/model_final.pth" #"https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_C4_3x/137849393/model_final_f97cb7.pkl"
+    cfg.MODEL.WEIGHTS = "/home/tanmayg/Data/detectron_output/model_final.pth" #"https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_C4_3x/137849393/model_final_f97cb7.pkl"
     predictor = DefaultPredictor(cfg)
 
     imgdir=os.path.join(args.imgdir,args.split) #'/home/tanmayg/Data/gpv/learning_phase_data/coco/images/train2014'
