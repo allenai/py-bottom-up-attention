@@ -20,11 +20,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--split', type=str, default='train2014', help='train2014, val2014')
 parser.add_argument('--imgdir', type=str, help='path to coco image directory')
 parser.add_argument('--outdir', type=str, help='path to save features')
+parser.add_argument('--model', type=str, help='which model weights to use')
 parser.add_argument('--verbose', dest='verbose', action='store_true')
 
 args = parser.parse_args()
 
-def run_detector(raw_image,predictor,num_objects=100,verbose=True):
+def run_detector(raw_image,predictor,num_objects=8000,verbose=True):
     with torch.no_grad():
         raw_height, raw_width = raw_image.shape[:2]
         if verbose: tqdm.write("Original image size: " + str((raw_height, raw_width)))
@@ -73,29 +74,34 @@ def run_detector(raw_image,predictor,num_objects=100,verbose=True):
         for nms_thresh in np.arange(0.5, 1.0, 0.1):
             instances, ids = fast_rcnn_inference_single_image(
                 boxes, probs, image.shape[1:], 
-                score_thresh=0.2, nms_thresh=nms_thresh, topk_per_image=num_objects
+                score_thresh=0.0, nms_thresh=nms_thresh, topk_per_image=num_objects #0.01
             )
             if len(ids) == num_objects:
                 break
                 
         instances = detector_postprocess(instances, raw_height, raw_width)
-        roi_features = feature_pooled[ids].detach()
+        #roi_features = feature_pooled[ids].detach()
         if verbose: tqdm.write(str(instances))
         
-        return instances, roi_features
+        return instances#, roi_features
 
 def main():
     cfg = get_cfg()
     cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_50_C4_3x_coco_2014.yaml")
-    cfg.MODEL.RPN.POST_NMS_TOPK_TEST = 300
+    cfg.MODEL.RPN.POST_NMS_TOPK_TEST = 100 #500
     cfg.MODEL.ROI_HEADS.NMS_THRESH_TEST = 0.6
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.2
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.01
     cfg.MODEL.RPN.NMS_THRESH = 0.7
     # select whichever model you want to cache features for
-    # faster rcnn trained on gpv-train set
-    cfg.MODEL.WEIGHTS = "/home/tanmayg/Data/detectron_output/model_final.pth" 
-    # faster rcnn trained on original-train set
-    #cfg.MODEL.WEIGHTS = "https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_C4_3x/137849393/model_final_f97cb7.pkl"
+    if args.model=='gpv_trained':
+        # faster rcnn trained on gpv-train set
+        cfg.MODEL.WEIGHTS = "/home/tanmayg/Data/detectron_output/model_final.pth" 
+    elif args.model=='original_trained':
+        #faster rcnn trained on original-train set
+        cfg.MODEL.WEIGHTS = "https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_C4_3x/137849393/model_final_f97cb7.pkl"
+    else:
+        raise NotImplementedError
+
     predictor = DefaultPredictor(cfg)
 
     imgdir=os.path.join(args.imgdir,args.split) #'/home/tanmayg/Data/gpv/learning_phase_data/coco/images/train2014'
@@ -108,7 +114,7 @@ def main():
     paths = glob.glob(f'{imgdir}/*.jpg')
     for i,path in enumerate(tqdm(paths)):
         im = cv2.imread(path)
-        instances, roi_features = run_detector(im,predictor,verbose=args.verbose)
+        instances = run_detector(im,predictor,verbose=args.verbose)
         # instances.pred_boxes: (36,4) x1,y1,x2,y2
         # instances.scores: (36,)
         # instances.classes: (36,)
@@ -116,7 +122,9 @@ def main():
         boxes = instances.pred_boxes.tensor.cpu().numpy()
         scores = instances.scores.cpu().numpy()
         classes = instances.pred_classes.cpu().numpy()
-        feats = roi_features.cpu().numpy()
+        #feats = roi_features.cpu().numpy()
+        print(boxes.shape)
+        #import pdb; pdb.set_trace()
         im_name = os.path.splitext(os.path.split(path)[1])[0]
         _,subset,im_id = im_name.split('_')
         im_id = int(im_id)
@@ -124,7 +132,7 @@ def main():
         grp.create_dataset('boxes',data=boxes)
         grp.create_dataset('scores',data=scores)
         grp.create_dataset('classes',data=classes)
-        grp.create_dataset('feats',data=feats)
+        #grp.create_dataset('feats',data=feats)
 
     f.close()
 
